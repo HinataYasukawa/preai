@@ -1,15 +1,19 @@
 import subprocess
 import cv2
 import os
+from moviepy.editor import VideoFileClip
 
+audio_path = "C:/openpose/examples/audio/audio.mp3"
 video_path = "C:/openpose/examples/video/video.avi"
 save_dir = "C:/openpose/examples/image"
 openpose_path = "bin\OpenPoseDemo.exe"
 image_dir = "examples\image"
 output_dir = "output"
 
-cap = cv2.VideoCapture(video_path)
+video = VideoFileClip(video_path)
+video.audio.write_audiofile(audio_path)
 
+cap = cv2.VideoCapture(video_path)
 fps = cap.get(cv2.CAP_PROP_FPS)
 
 frame_count = 0
@@ -30,7 +34,7 @@ while cap.isOpened():
 cap.release()
 
 
-command = f"{openpose_path} --image_dir {image_dir} --write_images {output_dir} --display 0"
+command = f"{openpose_path} --image_dir {image_dir} --write_json {output_dir} --display 0 --render_pose 0"
 
 process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
 
