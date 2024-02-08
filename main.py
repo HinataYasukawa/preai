@@ -1,5 +1,6 @@
 import subprocess
 import cv2
+import speech_recognition as sr
 import os
 from moviepy.editor import VideoFileClip
 
@@ -9,6 +10,7 @@ save_dir = "C:/openpose/examples/image"
 openpose_path = "bin\OpenPoseDemo.exe"
 image_dir = "examples\image"
 output_dir = "output"
+voice_path = "C:/openpose/examples/audio/sample.wav"
 
 video = VideoFileClip(video_path)
 video.audio.write_audiofile(audio_path)
@@ -41,3 +43,11 @@ process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
 output, error = process.communicate()
 
 print(output)
+
+
+r = sr.Recognizer()
+with sr.AudioFile(voice_path) as source:
+    audio = r.record(source)
+
+text = r.recognize_google(audio, language='ja-JP')
+print(text)
