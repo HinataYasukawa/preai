@@ -35,7 +35,7 @@ while cap.isOpened():
 
 cap.release()
 
-
+#jsonファイルに座標書き出し
 command = f"{openpose_path} --image_dir {image_dir} --write_json {output_dir} --display 0 --render_pose 0"
 
 process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
@@ -44,10 +44,11 @@ output, error = process.communicate()
 
 print(output)
 
-
+#動画を音声ファイルに変換
 r = sr.Recognizer()
 with sr.AudioFile(voice_path) as source:
     audio = r.record(source)
 
+#音声ファイルを文字ファイルに変換
 text = r.recognize_google(audio, language='ja-JP')
 print(text)
