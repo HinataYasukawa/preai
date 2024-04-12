@@ -5,7 +5,7 @@ import os
 from moviepy.editor import VideoFileClip
 
 audio_path = "C:/openpose/examples/audio/audio.mp3"
-video_path = "C:/openpose/examples/video/video.avi"
+video_path = "C:/openpose/examples/video/14807_640x360.mp4"
 save_dir = "C:/openpose/examples/image"
 openpose_path = "bin\OpenPoseDemo.exe"
 image_dir = "examples\image"
