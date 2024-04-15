@@ -1,4 +1,3 @@
-# learning.py
 import numpy as np
 import json
 import os
@@ -7,15 +6,24 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-def load_and_process_data(json_dir):
+def load_labels(label_file):
+    with open(label_file, 'r') as file:
+        return json.load(file)
+
+def load_and_process_data(json_dir, labels):
     features = []
-    labels = []  # このリストは適切な方法で事前に準備する必要があります
+    label_data = ["good","normal","bad","good","good","good","good","good","good","good"]  # 実際のラベルを格納するリスト
     previous_keypoints = None
 
-    for filename in sorted(os.listdir(json_dir)):  # JSONディレクトリ内のすべてのファイルを処理
+    for filename in sorted(os.listdir(json_dir)):
         file_path = os.path.join(json_dir, filename)
         if not file_path.endswith('.json'):
-            continue  # JSONファイルのみを処理
+            continue
+
+        video_name = filename.split('_')[0] + '.mp4'  # filenameが 'video1_frame_0001.json' の形式の場合
+        if video_name not in labels:
+            continue  # ラベルが存在しない動画はスキップ
+
         with open(file_path, 'r') as f:
             data = json.load(f)
 
@@ -32,27 +40,28 @@ def load_and_process_data(json_dir):
 
             if previous_keypoints is not None:
                 delta_keypoints = np.array(current_keypoints) - np.array(previous_keypoints)
-                features.append(delta_keypoints)  # 特徴量リストに追加
+                features.append(delta_keypoints)
+                label_data.append(labels[video_name])  # 対応するラベルを追加
 
             previous_keypoints = current_keypoints
 
-    return np.array(features), np.array(labels)
-
+    return np.array(features), np.array(label_data)
 
 def train_model(features, labels, model_file='model.pkl'):
     if os.path.exists(model_file):
-        model = joblib.load(model_file)  # モデルファイルが存在する場合、読み込む
+        model = joblib.load(model_file)
     else:
-        model = RandomForestClassifier(n_estimators=100, random_state=42)  # 存在しない場合、新規作成
+        model = RandomForestClassifier(n_estimators=100, random_state=42)
 
     X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
     model.fit(X_train, y_train)
     predictions = model.predict(X_test)
     print(classification_report(y_test, predictions))
-
-    joblib.dump(model, model_file)  # 学習したモデルを保存
+    joblib.dump(model, model_file)
 
 # 実行部分
+label_file = 'path_to_labels.json'
+labels = load_labels(label_file)
 json_dir = 'output'
-features, labels = load_and_process_data(json_dir)
-train_model(features, labels)
+features, label_data = load_and_process_data(json_dir, labels)
+train_model(features, label_data)
