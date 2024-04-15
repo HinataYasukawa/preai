@@ -4,13 +4,14 @@ import speech_recognition as sr
 import os
 from moviepy.editor import VideoFileClip
 
-audio_path = "C:/openpose/examples/audio/audio.mp3"
+openpose_path = "bin\OpenPoseDemo.exe"
 video_path = "C:/openpose/examples/video/01.mp4"
 save_dir = "C:/openpose/examples/image"
-openpose_path = "bin\OpenPoseDemo.exe"
-image_dir = "examples\image"
 output_dir = "output"
+"""
 voice_path = "C:/openpose/examples/audio/sample.wav"
+audio_path = "C:/openpose/examples/audio/audio.mp3"
+"""
 
 video = VideoFileClip(video_path)
 video.audio.write_audiofile(audio_path)
@@ -36,7 +37,7 @@ while cap.isOpened():
 cap.release()
 
 #jsonファイルに座標書き出し
-command = f"{openpose_path} --image_dir {image_dir} --write_json {output_dir} --display 0 --render_pose 0"
+command = f"{openpose_path} --write_json {output_dir} --display 0 --render_pose 0"
 
 process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
 
@@ -44,6 +45,7 @@ output, error = process.communicate()
 
 print(output)
 
+"""
 #動画を音声ファイルに変換
 r = sr.Recognizer()
 with sr.AudioFile(voice_path) as source:
@@ -52,3 +54,4 @@ with sr.AudioFile(voice_path) as source:
 #音声ファイルを文字ファイルに変換
 text = r.recognize_google(audio, language='ja-JP')
 print(text)
+"""
