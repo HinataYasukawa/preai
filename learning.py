@@ -20,7 +20,7 @@ def load_and_process_data(json_dir, labels):
         if not file_path.endswith('.json'):
             continue
 
-        video_name = filename.split('_')[0] + '.mp4'  # filenameが 'video1_frame_0001.json' の形式の場合
+        video_name = filename.split('_')[0] + '.mp4'
         if video_name not in labels:
             continue  # ラベルが存在しない動画はスキップ
 
