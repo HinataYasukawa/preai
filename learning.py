@@ -1,56 +1,58 @@
+# learning.py
 import numpy as np
 import json
+import os
+import joblib
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-# 特徴量とラベルの準備
-features = []
-targets = []  # このリストには手動でラベル（good, normal, bad）を追加する必要があります
+def load_and_process_data(json_dir):
+    features = []
+    labels = []  # このリストは適切な方法で事前に準備する必要があります
+    previous_keypoints = None
 
-# 前のフレームのキーポイントを保持するための変数
-previous_keypoints = None
-
-# 10フレームのデータを読み込む
-for num in range(600):
-    n = f'{num:04}'
-    with open('frame_' + n + '_keypoints.json', 'r') as json_open:
-        data = json.load(json_open)
-
-        indices = [0, 4, 7]
-        keypoint_names = ['face', 'right', 'left']
+    for filename in sorted(os.listdir(json_dir)):  # JSONディレクトリ内のすべてのファイルを処理
+        file_path = os.path.join(json_dir, filename)
+        if not file_path.endswith('.json'):
+            continue  # JSONファイルのみを処理
+        with open(file_path, 'r') as f:
+            data = json.load(f)
 
         for person in data['people']:
             keypoints = person['pose_keypoints_2d']
-
-            # 現在のフレームのキーポイントを初期化
+            indices = [0, 4, 7]
             current_keypoints = []
 
             for index in indices:
-                x = keypoints[index * 3]  # x座標
-                y = keypoints[index * 3 + 1]  # y座標
-                confidence = keypoints[index * 3 + 2]  # 信頼度
+                x = keypoints[index * 3]
+                y = keypoints[index * 3 + 1]
+                confidence = keypoints[index * 3 + 2]
                 current_keypoints.extend([x, y, confidence])
 
             if previous_keypoints is not None:
-                # 前のフレームとの差分を計算
                 delta_keypoints = np.array(current_keypoints) - np.array(previous_keypoints)
                 features.append(delta_keypoints)  # 特徴量リストに追加
 
-            # 現在のキーポイントを更新
             previous_keypoints = current_keypoints
 
-# 特徴量とターゲットをNumpy配列に変換
-X = np.array(features)
-Y = np.array(targets)  # 対応するターゲットラベルを用意
+    return np.array(features), np.array(labels)
 
-# データを訓練セットとテストセットに分割
-X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
-# 分類器の訓練
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X_train, Y_train)
+def train_model(features, labels, model_file='model.pkl'):
+    if os.path.exists(model_file):
+        model = joblib.load(model_file)  # モデルファイルが存在する場合、読み込む
+    else:
+        model = RandomForestClassifier(n_estimators=100, random_state=42)  # 存在しない場合、新規作成
 
-# モデルの評価
-predictions = model.predict(X_test)
-print(classification_report(Y_test, predictions))
+    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
+    model.fit(X_train, y_train)
+    predictions = model.predict(X_test)
+    print(classification_report(y_test, predictions))
+
+    joblib.dump(model, model_file)  # 学習したモデルを保存
+
+# 実行部分
+json_dir = 'output'
+features, labels = load_and_process_data(json_dir)
+train_model(features, labels)
