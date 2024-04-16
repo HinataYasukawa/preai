@@ -12,7 +12,7 @@ def load_labels(label_file):
 
 def load_and_process_data(json_dir, labels):
     features = []
-    label_data = ["good","normal","bad","good","good","good","good","good","good","good"]  # 実際のラベルを格納するリスト
+    label_data = []  # 実際のラベルを格納するリスト
     previous_keypoints = None
 
     for filename in sorted(os.listdir(json_dir)):
@@ -60,7 +60,7 @@ def train_model(features, labels, model_file='model.pkl'):
     joblib.dump(model, model_file)
 
 # 実行部分
-label_file = 'path_to_labels.json'
+label_file = 'labels.json'
 labels = load_labels(label_file)
 json_dir = 'output'
 features, label_data = load_and_process_data(json_dir, labels)
