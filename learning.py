@@ -10,22 +10,35 @@ def load_labels(label_file):
     with open(label_file, 'r') as file:
         return json.load(file)
 
-def load_and_process_data(json_dir, labels):
+def load_and_process_data(json_dir, labels, video_name):
     features = []
-    label_data = []  # 実際のラベルを格納するリスト
+    label_data = []
     previous_keypoints = None
+
+    full_json_dir = os.path.join(os.getcwd(), json_dir)
+    print(f"Looking for JSON files in: {full_json_dir}")
+
+    if not os.listdir(full_json_dir):
+        print(f"No files in {full_json_dir}")
+        return np.array(features), np.array(label_data)
 
     for filename in sorted(os.listdir(json_dir)):
         file_path = os.path.join(json_dir, filename)
         if not file_path.endswith('.json'):
+            print(f"Skipped non-JSON file: {filename}")
             continue
 
-        video_name = filename.split('_')[0] + '.mp4'
+        print(f"Processing file: {filename}")
         if video_name not in labels:
-            continue  # ラベルが存在しない動画はスキップ
+            print(f"No label for video: {video_name}")
+            continue
 
         with open(file_path, 'r') as f:
             data = json.load(f)
+
+        # データに人がいない場合スキップ
+        if not data['people']:
+            continue 
 
         for person in data['people']:
             keypoints = person['pose_keypoints_2d']
@@ -41,10 +54,11 @@ def load_and_process_data(json_dir, labels):
             if previous_keypoints is not None:
                 delta_keypoints = np.array(current_keypoints) - np.array(previous_keypoints)
                 features.append(delta_keypoints)
-                label_data.append(labels[video_name])  # 対応するラベルを追加
+                label_data.append(labels[video_name])
 
             previous_keypoints = current_keypoints
 
+    print(f"Loaded {len(features)} feature sets.")
     return np.array(features), np.array(label_data)
 
 def train_model(features, labels, model_file='model.pkl'):
@@ -60,8 +74,9 @@ def train_model(features, labels, model_file='model.pkl'):
     joblib.dump(model, model_file)
 
 # 実行部分
+video_name = '01.mp4'
 label_file = 'labels.json'
 labels = load_labels(label_file)
 json_dir = 'output'
-features, label_data = load_and_process_data(json_dir, labels)
+features, label_data = load_and_process_data(json_dir, labels, video_name)
 train_model(features, label_data)
