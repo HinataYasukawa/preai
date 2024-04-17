@@ -2,10 +2,17 @@ import subprocess
 import cv2
 import speech_recognition as sr
 import os
+import json
 from moviepy.editor import VideoFileClip
 
+
+with open('config.json', 'r') as config_file:
+    config = json.load(config_file)
+
+video_name = config['video_name']
+
 openpose_path = "bin\OpenPoseDemo.exe"
-video_path = "C:/openpose/examples/video/01.mp4"
+video_path = "C:/openpose/examples/video/{video_name}"
 save_dir = "C:/openpose/examples/image"
 output_dir = "output"
 

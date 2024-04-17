@@ -73,8 +73,11 @@ def train_model(features, labels, model_file='model.pkl'):
     print(classification_report(y_test, predictions))
     joblib.dump(model, model_file)
 
+with open('config.json', 'r') as config_file:
+    config = json.load(config_file)
+
 # 実行部分
-video_name = '01.mp4'
+video_name = config['video_name']
 label_file = 'labels.json'
 labels = load_labels(label_file)
 json_dir = 'output'
