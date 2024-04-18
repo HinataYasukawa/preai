@@ -1,12 +1,18 @@
 {
     "01.mp4": "good",
-    "02.mp4": "bad",
-    "03.mp4": "normal",
+    "02.mp4": "good",
+    "03.mp4": "good",
     "04.mp4": "good",
     "05.mp4": "good",
     "06.mp4": "good",
     "07.mp4": "good",
     "08.mp4": "good",
     "09.mp4": "good",
-    "10.mp4": "good"
+    "10.mp4": "good",
+    "11.mp4": "bad",
+    "12.mp4": "good",
+    "13.mp4": "bad",
+    "14.mp4": "good",
+    "15.mp4": "bad",
+    "16.mp4": "good"
 }
