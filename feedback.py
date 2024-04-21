@@ -22,12 +22,12 @@ def load_features(json_dir):
             continue
         with open(file_path, 'r') as f:
             data = json.load(f)
-            keypoints = data['people'][0]['pose_keypoints_2d']  # 1人を想定
-            features.append(keypoints)  # ここでは単純化のため直接keypointsを使う
+            keypoints = data['people'][0]['pose_keypoints_2d']
+            features.append(keypoints)
     return np.array(features)
 
 
-    #入力動画に対してフィードバックを生成します。
+    #入力動画に対してフィードバックを生成
 def generate_feedback(video_path, model_path='model.pkl', json_dir='output'):
 
     # main.pyを実行して動画からキーポイントを抽出
@@ -41,7 +41,7 @@ def generate_feedback(video_path, model_path='model.pkl', json_dir='output'):
 
     # 特徴量から点数を予測
     predictions = model.predict(features)
-    score = np.mean(predictions)  # 点数を平均化して10点満点でスケーリング
+    score = np.mean(predictions)
     score = (score / len(np.unique(predictions))) * 10
 
     return f"このプレゼンテーションのスコアは {score:.2f}/10 です。"
