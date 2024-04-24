@@ -77,7 +77,7 @@ with open('config.json', 'r') as config_file:
     config = json.load(config_file)
 
 # 実行部分
-video_name = config['video_name']
+video_name = "02.mp4"
 label_file = 'labels.json'
 labels = load_labels(label_file)
 json_dir = 'output'

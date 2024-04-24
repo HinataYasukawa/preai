@@ -10,9 +10,19 @@
     "09.mp4": "good",
     "10.mp4": "good",
     "11.mp4": "bad",
-    "12.mp4": "good",
+    "12.mp4": "bad",
     "13.mp4": "bad",
-    "14.mp4": "good",
+    "14.mp4": "bad",
     "15.mp4": "bad",
-    "16.mp4": "good"
+    "16.mp4": "bad",
+    "17.mp4": "bad",
+    "18.mp4": "bad",
+    "19.mp4": "bad",
+    "20.mp4": "normal",
+    "21.mp4": "good",
+    "22.mp4": "good",
+    "23.mp4": "good",
+    "24.mp4": "normal",
+    "25.mp4": "normal",
+    "27.mp4": "good"
 }
