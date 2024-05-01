@@ -1,9 +1,8 @@
 import numpy as np
 import librosa
 import os
+import joblib
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
 
 def extract_features(audio_path):
     y, sr = librosa.load(audio_path, sr=None)
@@ -28,9 +27,9 @@ def load_data_and_labels(audio_folder, labels):
     features = []
     labels_array = []
     for filename in os.listdir(audio_folder):
-        if filename.endswith('.wav'):
+        if filename.endswith(('.wav', '.mp3')):
             file_path = os.path.join(audio_folder, filename)
-            label = labels.get(filename, None)
+            label = labels.get(filename)
             if label is not None:
                 silence_ratio, pitch_deviation = extract_features(file_path)
                 features.append([silence_ratio, pitch_deviation])
@@ -38,18 +37,32 @@ def load_data_and_labels(audio_folder, labels):
     return np.array(features), np.array(labels_array)
 
 def main():
-    audio_folder = "C:/openpose/examples/audio/audio.mp3"
+    audio_folder = "C:/openpose/examples/audio/"
     labels = {
-        'audio1.mp3': "good",
+        'audio.mp3': "good",
+        # 他のファイルとラベルを追加
     }
 
-    features, labels = load_data_and_labels(audio_folder, labels)
-    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=42)
+    features, labels_array = load_data_and_labels(audio_folder, labels)
+    if len(features) == 0:
+        print("No data available for training.")
+        return
 
-    classifier = RandomForestClassifier(n_estimators=100, random_state=42)
-    classifier.fit(X_train, y_train)
-    predictions = classifier.predict(X_test)
-    print(classification_report(y_test, predictions))
+    model_path = 'model2.pkl'
+    if os.path.exists(model_path):
+        classifier = joblib.load(model_path)
+        print("Loaded existing model.")
+    else:
+        classifier = RandomForestClassifier(n_estimators=100, random_state=42)
+        print("Created new model.")
+
+    # 全データを使用してモデルを訓練
+    classifier.fit(features, labels_array)
+    print("Model trained on all available data.")
+
+    # モデルを保存
+    joblib.dump(classifier, model_path)
+    print("Model saved to", model_path)
 
 if __name__ == '__main__':
     main()

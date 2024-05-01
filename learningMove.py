@@ -36,7 +36,6 @@ def load_and_process_data(json_dir, labels, video_name):
         with open(file_path, 'r') as f:
             data = json.load(f)
 
-        # データに人がいない場合スキップ
         if not data['people']:
             continue 
 
@@ -61,7 +60,7 @@ def load_and_process_data(json_dir, labels, video_name):
     print(f"Loaded {len(features)} feature sets.")
     return np.array(features), np.array(label_data)
 
-def train_model(features, labels, model_file='model.pkl'):
+def train_model(features, labels, model_file='model1.pkl'):
     if os.path.exists(model_file):
         model = joblib.load(model_file)
     else:
