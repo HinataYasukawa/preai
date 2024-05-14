@@ -1,6 +1,7 @@
 import numpy as np
 import librosa
 import os
+import json
 import joblib
 from sklearn.ensemble import RandomForestClassifier
 
@@ -23,13 +24,18 @@ def extract_features(audio_path):
 
     return silence_ratio, pitch_deviation
 
+def load_labels(label_file):
+    with open(label_file, 'r') as file:
+        return json.load(file)
+
 def load_data_and_labels(audio_folder, labels):
     features = []
     labels_array = []
     for filename in os.listdir(audio_folder):
         if filename.endswith(('.wav', '.mp3')):
             file_path = os.path.join(audio_folder, filename)
-            label = labels.get(filename)
+            video_name = os.path.splitext(filename)[0] + ".mp4"
+            label = labels.get(video_name)
             if label is not None:
                 silence_ratio, pitch_deviation = extract_features(file_path)
                 features.append([silence_ratio, pitch_deviation])
@@ -38,10 +44,8 @@ def load_data_and_labels(audio_folder, labels):
 
 def main():
     audio_folder = "C:/openpose/examples/audio/"
-    labels = {
-        'audio.mp3': "good",
-        # 他のファイルとラベルを追加
-    }
+    label_file = 'labels.json'
+    labels = load_labels(label_file)
 
     features, labels_array = load_data_and_labels(audio_folder, labels)
     if len(features) == 0:

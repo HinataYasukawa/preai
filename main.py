@@ -6,7 +6,7 @@ import json
 from moviepy.editor import VideoFileClip
 
 openpose_path = "bin\OpenPoseDemo.exe"
-video_path = "C:/openpose/examples/video/02.mp4"
+video_path = "C:/openpose/examples/video/01.mp4"
 save_dir = "C:/openpose/examples/image"
 output_dir = "output"
 
@@ -47,14 +47,25 @@ output, error = process.communicate()
 
 print(output)
 
-
-"""
 #動画を音声ファイルに変換
 r = sr.Recognizer()
 with sr.AudioFile(voice_path) as source:
     audio = r.record(source)
 
-#音声ファイルを文字ファイルに変換
-text = r.recognize_google(audio, language='ja-JP')
-print(text)
-"""
+#音声ファイルの読み込み
+r = sr.Recognizer()
+with sr.AudioFile(audio_path) as source:
+    audio = r.record(source)
+
+#文章ファイルに変換
+try:
+    text = r.recognize_google(audio, language='ja-JP')
+    print("Google Speech Recognition thinks you said: " + text)
+
+    with open('output.txt', 'w', encoding='utf-8') as file:
+        file.write(text)
+
+except sr.UnknownValueError:
+    print("Google Speech Recognition could not understand audio")
+except sr.RequestError as e:
+    print(f"Could not request results from Google Speech Recognition service; {e}")
