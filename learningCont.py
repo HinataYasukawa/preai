@@ -29,7 +29,7 @@ def load_data_and_labels(text_folder, labels):
     for filename in os.listdir(text_folder):
         if filename.endswith('.txt'):
             file_path = os.path.join(text_folder, filename)
-            video_name = os.path.splitext(filename)[0] + ".wav"
+            video_name = os.path.splitext(filename)[0] + ".mp4"
             label = labels.get(video_name)
             if label is not None:
                 text_features = load_text_features(file_path)

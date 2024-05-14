@@ -28,15 +28,18 @@ def load_labels(label_file):
     with open(label_file, 'r') as file:
         return json.load(file)
 
-def load_data_and_labels(audio_folder, labels):
+#labels.jsonの末尾の.mp4のラベルをロード
+def load_data_and_labels(audio_folder, labels, filename):
     features = []
     labels_array = []
     for filename in os.listdir(audio_folder):
-        if filename.endswith(('.wav', '.mp3')):
+        if filename.endswith('.wav'):
+            print("aaa")
             file_path = os.path.join(audio_folder, filename)
-            video_name = os.path.splitext(filename)[0] + ".wav"
+            video_name = os.path.splitext(filename)[0] + ".mp4"
             label = labels.get(video_name)
             if label is not None:
+                print("bbb")
                 silence_ratio, pitch_deviation = extract_features(file_path)
                 features.append([silence_ratio, pitch_deviation])
                 labels_array.append(label)
@@ -46,8 +49,9 @@ def main():
     audio_folder = "C:/openpose/output/audio/"
     label_file = 'labels.json'
     labels = load_labels(label_file)
+    filename = "audio.wav"
 
-    features, labels_array = load_data_and_labels(audio_folder, labels)
+    features, labels_array = load_data_and_labels(audio_folder, labels, filename)
     if len(features) == 0:
         print("No data available for training.")
         return
@@ -60,11 +64,9 @@ def main():
         classifier = RandomForestClassifier(n_estimators=100, random_state=42)
         print("Created new model.")
 
-    # 全データを使用してモデルを訓練
     classifier.fit(features, labels_array)
     print("Model trained on all available data.")
 
-    # モデルを保存
     joblib.dump(classifier, model_path)
     print("Model saved to", model_path)
 

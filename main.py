@@ -5,16 +5,17 @@ import os
 import json
 from moviepy.editor import VideoFileClip
 
+number = "11"
 openpose_path = "bin\OpenPoseDemo.exe"
-video_path = "C:/openpose/examples/11.mp4"
+video_path = "C:/openpose/examples/"+number+".mp4"
 
 output_dir = "output/json"
 image_dir = "output/image"
 audio_dir = "output/audio"
 txt_dir = 'output/txt'
 
-audio_path = os.path.join(audio_dir, "audio.wav")
-txt_path = os.path.join(txt_dir, 'output.txt')
+audio_path = os.path.join(audio_dir, number+".wav")
+txt_path = os.path.join(txt_dir, number+'.txt')
 
 video = VideoFileClip(video_path)
 
