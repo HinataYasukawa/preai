@@ -34,7 +34,7 @@ def load_data_and_labels(audio_folder, labels):
     for filename in os.listdir(audio_folder):
         if filename.endswith(('.wav', '.mp3')):
             file_path = os.path.join(audio_folder, filename)
-            video_name = os.path.splitext(filename)[0] + ".mp4"
+            video_name = os.path.splitext(filename)[0] + ".wav"
             label = labels.get(video_name)
             if label is not None:
                 silence_ratio, pitch_deviation = extract_features(file_path)
@@ -43,7 +43,7 @@ def load_data_and_labels(audio_folder, labels):
     return np.array(features), np.array(labels_array)
 
 def main():
-    audio_folder = "C:/openpose/examples/audio/"
+    audio_folder = "C:/openpose/output/audio/"
     label_file = 'labels.json'
     labels = load_labels(label_file)
 

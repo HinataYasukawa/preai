@@ -29,7 +29,7 @@ def load_data_and_labels(text_folder, labels):
     for filename in os.listdir(text_folder):
         if filename.endswith('.txt'):
             file_path = os.path.join(text_folder, filename)
-            video_name = os.path.splitext(filename)[0] + ".mp4"
+            video_name = os.path.splitext(filename)[0] + ".wav"
             label = labels.get(video_name)
             if label is not None:
                 text_features = load_text_features(file_path)
@@ -38,7 +38,7 @@ def load_data_and_labels(text_folder, labels):
     return np.array(features), np.array(labels_array)
 
 def main():
-    text_folder = "C:/openpose/examples/txt/"
+    text_folder = "C:/openpose/output/txt/"
     label_file = 'labels.json'
     labels = load_labels(label_file)
 
