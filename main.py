@@ -55,8 +55,8 @@ output, error = process.communicate()
 
 print(output)
 
-# 音声ファイルを5分毎に区切る
-def split_audio(audio_path, output_dir, base_name, duration_ms=5 * 60 * 1000):
+# 音声ファイルを1分毎に区切る
+def split_audio(audio_path, output_dir, base_name, duration_ms=3 * 60 * 1000):
     audio = AudioSegment.from_wav(audio_path)
     audio_chunks = []
     for i in range(0, len(audio), duration_ms):
@@ -68,7 +68,7 @@ def split_audio(audio_path, output_dir, base_name, duration_ms=5 * 60 * 1000):
         audio_chunks.append(chunk_path)
     return audio_chunks
 
-# 音声ファイルを5分毎に区切り、文字起こしを行う
+# 音声ファイルを1分毎に区切り、文字起こしを行う
 audio_chunks = split_audio(audio_path, audio_dir, number)
 full_text = ""
 
@@ -77,8 +77,10 @@ r = sr.Recognizer()
 for i, chunk_path in enumerate(audio_chunks):
     with sr.AudioFile(chunk_path) as source:
         audio = r.record(source)
+        print("BBB")
     try:
         text = r.recognize_google(audio, language='ja-JP')
+        print("AAA")
         full_text += text + " "
         print(f"Chunk {i+1}: " + text)
     except sr.UnknownValueError:
