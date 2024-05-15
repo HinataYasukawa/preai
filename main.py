@@ -6,7 +6,7 @@ import json
 from moviepy.editor import VideoFileClip
 from pydub import AudioSegment
 
-number = "27"
+number = "32"
 openpose_path = "bin\OpenPoseDemo.exe"
 video_path = "C:/openpose/examples/" + number + ".mp4"
 
