@@ -34,12 +34,10 @@ def load_data_and_labels(audio_folder, labels, filename):
     labels_array = []
     for filename in os.listdir(audio_folder):
         if filename.endswith('.wav'):
-            print("aaa")
             file_path = os.path.join(audio_folder, filename)
             video_name = os.path.splitext(filename)[0] + ".mp4"
             label = labels.get(video_name)
             if label is not None:
-                print("bbb")
                 silence_ratio, pitch_deviation = extract_features(file_path)
                 features.append([silence_ratio, pitch_deviation])
                 labels_array.append(label)
