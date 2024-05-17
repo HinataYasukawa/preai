@@ -33,12 +33,12 @@ def load_point_features(json_dir):
                 current_keypoints.extend([x, y, confidence])
 
             if previous_keypoints is not None:
-                delta_keypoints = np.array(current_keypoints) - np.array(previous_keypoints)
+                delta_keypoints = np.array(current_keypoints, dtype=np.float32) - np.array(previous_keypoints, dtype=np.float32)
                 features.append(delta_keypoints)
 
             previous_keypoints = current_keypoints
 
-    return np.array(features, dtype=float)  # Ensure features are float type
+    return np.array(features, dtype=np.float32)
 
 # 音声ファイルから声の特徴量を解析する
 def load_voice_features(audio_path):
@@ -58,7 +58,7 @@ def load_voice_features(audio_path):
     else:
         pitch_deviation = 0
 
-    return np.array([silence_ratio, pitch_deviation], dtype=float)  # Ensure features are float type
+    return np.array([silence_ratio, pitch_deviation], dtype=np.float32)
 
 # テキストファイルからテキストの特徴量を解析する
 def load_text_features(text_file):
@@ -69,7 +69,7 @@ def load_text_features(text_file):
     sentiment_score = sia.polarity_scores(text)['compound']
     text_length = len(text.split())
 
-    return np.array([sentiment_score, text_length], dtype=float)  # Ensure features are float type
+    return np.array([sentiment_score, text_length], dtype=np.float32)
 
 # 入力動画に対してフィードバックを生成する
 def generate_feedback(video_name, model_paths, json_dir="output/json", audio_dir="output/audio", txt_dir="output/txt"):
@@ -82,16 +82,17 @@ def generate_feedback(video_name, model_paths, json_dir="output/json", audio_dir
     voice_features = load_voice_features(audio_path)
     text_features = load_text_features(txt_path)
 
+    # 特徴量の型をfloat32に変換
+    point_features = point_features.astype(np.float32)
+    voice_features = voice_features.astype(np.float32)
+    text_features = text_features.astype(np.float32)
+
     # モデルのロードと予測
     point_model = joblib.load(model_paths['pose'])
     voice_model = joblib.load(model_paths['audio'])
     text_model = joblib.load(model_paths['text'])
 
-    # 特徴量の形状を確認
-    print("Point features shape:", point_features.shape)
-    print("Voice features shape:", voice_features.shape)
-    print("Text features shape:", text_features.shape)
-
+    # 予測とスコア計算
     point_score = point_model.predict(point_features).mean()
     voice_score = voice_model.predict([voice_features])[0]
     text_score = text_model.predict([text_features])[0]
