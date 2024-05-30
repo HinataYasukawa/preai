@@ -71,6 +71,17 @@ def load_text_features(text_file):
 
     return np.array([sentiment_score, text_length], dtype=np.float32)
 
+# ラベルを数値に変換
+def convert_label_to_score(label):
+    if label == "good":
+        return 3
+    elif label == "normal":
+        return 2
+    elif label == "bad":
+        return 1
+    else:
+        return 0
+
 # 入力動画に対してフィードバックを生成する
 def generate_feedback(video_name, model_paths, json_dir="output/json", audio_dir="output/audio", txt_dir="output/txt"):
     # ディレクトリとファイルのパス設定
@@ -87,15 +98,24 @@ def generate_feedback(video_name, model_paths, json_dir="output/json", audio_dir
     voice_features = voice_features.astype(np.float32)
     text_features = text_features.astype(np.float32)
 
+    print(f"Point features dtype: {point_features.dtype}")
+    print(f"Voice features dtype: {voice_features.dtype}")
+    print(f"Text features dtype: {text_features.dtype}")
+
     # モデルのロードと予測
     point_model = joblib.load(model_paths['pose'])
     voice_model = joblib.load(model_paths['audio'])
     text_model = joblib.load(model_paths['text'])
 
+    # 予測結果の型を確認
+    point_predictions = point_model.predict(point_features)
+    print(f"Point predictions dtype: {point_predictions.dtype}")
+    print(f"Point predictions: {point_predictions}")
+
     # 予測とスコア計算
-    point_score = point_model.predict(point_features).mean()
-    voice_score = voice_model.predict([voice_features])[0]
-    text_score = text_model.predict([text_features])[0]
+    point_score = np.mean([convert_label_to_score(pred) for pred in point_predictions])
+    voice_score = convert_label_to_score(voice_model.predict([voice_features])[0])
+    text_score = convert_label_to_score(text_model.predict([text_features])[0])
 
     # 統合スコアの計算
     integrated_score = (point_score + voice_score + text_score) / 3
