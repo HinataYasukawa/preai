@@ -82,44 +82,54 @@ def convert_label_to_score(label):
     else:
         return 0
 
-# 入力動画に対してフィードバックを生成する
-def generate_feedback(video_name, model_paths, json_dir="output/json", audio_dir="output/audio", txt_dir="output/txt"):
+# 過去の動画の特長量を読み込む
+def load_past_features(feature_dir):
+    point_features = np.load(os.path.join(feature_dir, 'point_features.npy'), allow_pickle=True)
+    voice_features = np.load(os.path.join(feature_dir, 'voice_features.npy'), allow_pickle=True)
+    text_features = np.load(os.path.join(feature_dir, 'text_features.npy'), allow_pickle=True)
+
+    return point_features, voice_features, text_features
+
+# 新しい動画の特長量を過去の動画の特長量と比較してフィードバックを生成する
+def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/json", audio_dir="output/audio", txt_dir="output/txt"):
     # ディレクトリとファイルのパス設定
     audio_path = os.path.join(audio_dir, video_name.replace('.mp4', '.wav'))
     txt_path = os.path.join(txt_dir, video_name.replace('.mp4', '.txt'))
 
-    # 特徴量の読み込み
-    point_features = load_point_features(json_dir)
-    voice_features = load_voice_features(audio_path)
-    text_features = load_text_features(txt_path)
+    # 新しい動画の特長量の読み込み
+    new_point_features = load_point_features(json_dir)
+    new_voice_features = load_voice_features(audio_path)
+    new_text_features = load_text_features(txt_path)
 
-    # 特徴量の型をfloat32に変換
-    point_features = point_features.astype(np.float32)
-    voice_features = voice_features.astype(np.float32)
-    text_features = text_features.astype(np.float32)
-
-    print(f"Point features dtype: {point_features.dtype}")
-    print(f"Voice features dtype: {voice_features.dtype}")
-    print(f"Text features dtype: {text_features.dtype}")
+    # 過去の動画の特長量の読み込み
+    past_point_features, past_voice_features, past_text_features = load_past_features(feature_dir)
 
     # モデルのロードと予測
     point_model = joblib.load(model_paths['pose'])
     voice_model = joblib.load(model_paths['audio'])
     text_model = joblib.load(model_paths['text'])
 
-    # 予測結果の型を確認
-    point_predictions = point_model.predict(point_features)
-    print(f"Point predictions dtype: {point_predictions.dtype}")
-    print(f"Point predictions: {point_predictions}")
+    new_point_predictions = point_model.predict(new_point_features)
+    new_voice_prediction = voice_model.predict([new_voice_features])[0]
+    new_text_prediction = text_model.predict([new_text_features])[0]
 
-    # 予測とスコア計算
-    point_score = np.mean([convert_label_to_score(pred) for pred in point_predictions])
-    voice_score = convert_label_to_score(voice_model.predict([voice_features])[0])
-    text_score = convert_label_to_score(text_model.predict([text_features])[0])
+    # 予測結果のスコア変換
+    new_point_score = np.mean([convert_label_to_score(pred) for pred in new_point_predictions])
+    new_voice_score = convert_label_to_score(new_voice_prediction)
+    new_text_score = convert_label_to_score(new_text_prediction)
 
-    # 統合スコアの計算
-    integrated_score = (point_score + voice_score + text_score) / 3
-    return f"このプレゼンテーションのスコアは {integrated_score:.2f}/10 です。"
+    # 過去の動画のスコア計算
+    past_point_scores = np.mean([convert_label_to_score(pred) for preds in past_point_features for pred in preds])
+    past_voice_scores = np.mean([convert_label_to_score(pred) for pred in past_voice_features])
+    past_text_scores = np.mean([convert_label_to_score(pred) for pred in past_text_features])
+
+    # フィードバック生成
+    feedback = f"このプレゼンテーションのスコアは {new_point_score:.2f}/10 です。\n"
+    feedback += f"動き: 新しいスコア {new_point_score:.2f}, 過去の平均スコア {past_point_scores:.2f}\n"
+    feedback += f"声の特徴: 新しいスコア {new_voice_score:.2f}, 過去の平均スコア {past_voice_scores:.2f}\n"
+    feedback += f"テキストの特徴: 新しいスコア {new_text_score:.2f}, 過去の平均スコア {past_text_scores:.2f}\n"
+
+    return feedback
 
 if __name__ == "__main__":
     video_name = '32.mp4'
@@ -128,5 +138,6 @@ if __name__ == "__main__":
         'audio': 'model2.pkl',
         'text': 'model3.pkl'
     }
-    feedback = generate_feedback(video_name, model_paths)
+    feature_dir = "output/features"
+    feedback = generate_feedback(video_name, model_paths, feature_dir)
     print(feedback)
