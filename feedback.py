@@ -104,30 +104,54 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     # 過去の動画の特長量の読み込み
     past_point_features, past_voice_features, past_text_features = load_past_features(feature_dir)
 
-    # モデルのロードと予測
-    point_model = joblib.load(model_paths['pose'])
-    voice_model = joblib.load(model_paths['audio'])
-    text_model = joblib.load(model_paths['text'])
+    # 過去の動画の特徴量の平均を計算
+    past_silence_ratios = [features[0] for features in past_voice_features]
+    past_pitch_deviations = [features[1] for features in past_voice_features]
+    past_sentiment_scores = [features[0] for features in past_text_features]
+    past_text_lengths = [features[1] for features in past_text_features]
 
-    new_point_predictions = point_model.predict(new_point_features)
-    new_voice_prediction = voice_model.predict([new_voice_features])[0]
-    new_text_prediction = text_model.predict([new_text_features])[0]
+    print(past_silence_ratios)
+    print(past_pitch_deviations)
+    print(past_sentiment_scores)
+    print(past_text_lengths)
 
-    # 予測結果のスコア変換
-    new_point_score = np.mean([convert_label_to_score(pred) for pred in new_point_predictions])
-    new_voice_score = convert_label_to_score(new_voice_prediction)
-    new_text_score = convert_label_to_score(new_text_prediction)
+    past_silence_ratio_mean = np.mean(past_silence_ratios)
+    past_pitch_deviation_mean = np.mean(past_pitch_deviations)
+    past_sentiment_score_mean = np.mean(past_sentiment_scores)
+    past_text_length_mean = np.mean(past_text_lengths)
 
-    # 過去の動画のスコア計算
-    past_point_scores = np.mean([convert_label_to_score(pred) for preds in past_point_features for pred in preds])
-    past_voice_scores = np.mean([convert_label_to_score(pred) for pred in past_voice_features])
-    past_text_scores = np.mean([convert_label_to_score(pred) for pred in past_text_features])
+    # 新しい動画の特徴量
+    new_silence_ratio = new_voice_features[0]
+    new_pitch_deviation = new_voice_features[1]
+    new_sentiment_score = new_text_features[0]
+    new_text_length = new_text_features[1]
 
-    # フィードバック生成
-    feedback = f"このプレゼンテーションのスコアは {new_point_score:.2f}/10 です。\n"
-    feedback += f"動き: 新しいスコア {new_point_score:.2f}, 過去の平均スコア {past_point_scores:.2f}\n"
-    feedback += f"声の特徴: 新しいスコア {new_voice_score:.2f}, 過去の平均スコア {past_voice_scores:.2f}\n"
-    feedback += f"テキストの特徴: 新しいスコア {new_text_score:.2f}, 過去の平均スコア {past_text_scores:.2f}\n"
+    # 比較してフィードバックを生成
+    feedback = "フィードバック:\n"
+    
+    # 無声空間のフィードバック
+    if new_silence_ratio > past_silence_ratio_mean:
+        feedback += "無声空間が多いです。\n"
+    else:
+        feedback += "無声空間が少ないです。\n"
+
+    # ピッチの変動量のフィードバック
+    if new_pitch_deviation > past_pitch_deviation_mean:
+        feedback += "抑揚が多いです。\n"
+    else:
+        feedback += "抑揚が少ないです。\n"
+
+    # テキスト感情スコアのフィードバック
+    if new_sentiment_score > past_sentiment_score_mean:
+        feedback += "感情表現が豊かです。\n"
+    else:
+        feedback += "感情表現が控えめです。\n"
+
+    # テキストの長さのフィードバック
+    if new_text_length > past_text_length_mean:
+        feedback += "テキストが長いです。\n"
+    else:
+        feedback += "テキストが短いです。\n"
 
     return feedback
 
