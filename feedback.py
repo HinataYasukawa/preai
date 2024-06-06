@@ -128,11 +128,6 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     past_sentiment_scores = [features[0] for features in past_text_features]
     past_text_lengths = [features[1] for features in past_text_features]
 
-    print(past_silence_ratios)
-    print(past_pitch_deviations)
-    print(past_sentiment_scores)
-    print(past_text_lengths)
-
     past_silence_ratio_mean = np.mean(past_silence_ratios)
     past_pitch_deviation_mean = np.mean(past_pitch_deviations)
     past_sentiment_score_mean = np.mean(past_sentiment_scores)
