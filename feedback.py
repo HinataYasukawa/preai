@@ -101,6 +101,24 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     new_voice_features = load_voice_features(audio_path)
     new_text_features = load_text_features(txt_path)
 
+    #スコア計算---------------------------------------------------------------------------------------
+    # モデルのロードと予測
+    point_model = joblib.load(model_paths['pose'])
+    voice_model = joblib.load(model_paths['audio'])
+    text_model = joblib.load(model_paths['text'])
+
+    new_point_predictions = point_model.predict(new_point_features)
+    new_voice_prediction = voice_model.predict([new_voice_features])[0]
+    new_text_prediction = text_model.predict([new_text_features])[0]
+
+    # 予測結果のスコア変換
+    new_point_score = np.mean([convert_label_to_score(pred) for pred in new_point_predictions])
+    new_voice_score = convert_label_to_score(new_voice_prediction)
+    new_text_score = convert_label_to_score(new_text_prediction)
+    all_score = (new_point_score+new_voice_score+new_text_score)/3
+
+    #各特長量の評価計算---------------------------------------------------------------------------------------
+
     # 過去の動画の特長量の読み込み
     past_point_features, past_voice_features, past_text_features = load_past_features(feature_dir)
 
@@ -152,6 +170,12 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
         feedback += "テキストが長いです。\n"
     else:
         feedback += "テキストが短いです。\n"
+
+    #スコア出力---------------------------------------------------------------------------------------
+    feedback += f"動き: スコアは {new_point_score:.2f}です。\n"
+    feedback += f"声の特徴: スコアは {new_voice_score:.2f}です。\n"
+    feedback += f"テキストの特徴: スコアは {new_text_score:.2f}です。\n"
+    feedback += f"このプレゼンテーションのスコアは {all_score:.2f}/3 です。\n"
 
     return feedback
 
