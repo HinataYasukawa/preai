@@ -175,7 +175,7 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     return feedback
 
 if __name__ == "__main__":
-    video_name = '32.mp4'
+    video_name = '20.mp4'
     model_paths = {
         'pose': 'model1.pkl',
         'audio': 'model2.pkl',
