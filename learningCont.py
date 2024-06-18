@@ -3,12 +3,28 @@ import os
 import json
 import joblib
 import numpy as np
-import Mecab
-import ipadic
+from spacy import displacy
+from janome.tokenizer import Tokenizer
+from collections import Counter
 from nltk.sentiment import SentimentIntensityAnalyzer
 from sklearn.ensemble import RandomForestClassifier
 
 nltk.download('vader_lexicon')
+
+def count_pos(text):
+    tokenizer = Tokenizer()
+    tokens = tokenizer.tokenize(text)
+    
+    pos_counter = [0,0]
+
+    for token in tokens:
+        pos = token.part_of_speech.split(',')[0]
+        if(pos == "動詞"):
+            pos_counter[0] += 1
+        if(pos == "名詞"):
+            pos_counter[1] += 1
+
+    return pos_counter
 
 def load_labels(label_file):
     with open(label_file, 'r') as file:
@@ -23,9 +39,13 @@ def load_text_features(text_file):
     sentiment_score = sia.polarity_scores(text)['compound']
     text_length = len(text.split())
 
-    mecab = Mecab.Tagger()
+    pos_counts = count_pos(text)
 
-    return [sentiment_score, text_length]
+    tmpf= [sentiment_score, text_length]
+    score = tmpf + pos_counts
+    print(score)
+
+    return score
 
 def load_data_and_labels(text_folder, labels):
     features = []
@@ -59,6 +79,7 @@ def main():
         model = RandomForestClassifier(n_estimators=100, random_state=42)
         print("Created new model.")
 
+    print(features)
     # 全データを使用してモデルを訓練
     model.fit(features, labels_array)
     print("Model trained on all available data.")
