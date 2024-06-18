@@ -34,9 +34,12 @@ def load_point_features(json_dir):
 
             if previous_keypoints is not None:
                 delta_keypoints = np.array(current_keypoints, dtype=np.float32) - np.array(previous_keypoints, dtype=np.float32)
+
                 features.append(delta_keypoints)
 
             previous_keypoints = current_keypoints
+            print("------------------------------------------------")
+            print(np.array(features, dtype=np.float32))
 
     return np.array(features, dtype=np.float32)
 

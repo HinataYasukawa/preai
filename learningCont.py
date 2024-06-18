@@ -3,6 +3,8 @@ import os
 import json
 import joblib
 import numpy as np
+import Mecab
+import ipadic
 from nltk.sentiment import SentimentIntensityAnalyzer
 from sklearn.ensemble import RandomForestClassifier
 
@@ -20,6 +22,8 @@ def load_text_features(text_file):
     sia = SentimentIntensityAnalyzer()
     sentiment_score = sia.polarity_scores(text)['compound']
     text_length = len(text.split())
+
+    mecab = Mecab.Tagger()
 
     return [sentiment_score, text_length]
 
