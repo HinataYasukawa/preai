@@ -50,7 +50,6 @@ def load_and_process_data(json_dir, labels, video_name):
                 confidence = keypoints[index * 3 + 2]
                 key = (x+y)*confidence
                 current_keypoints.extend([key])
-                print(current_keypoints)
 
             if previous_keypoints is not None:
                 n = [current - previous for current, previous in zip(current_keypoints, previous_keypoints)]
@@ -62,7 +61,6 @@ def load_and_process_data(json_dir, labels, video_name):
             previous_keypoints = current_keypoints
 
     print(f"Loaded {len(features)} feature sets.")
-    print(np.array(features),np.array(label_data))
     return np.array(features), np.array(label_data)
 
 def train_model(features, labels, model_file='model1.pkl'):
@@ -77,7 +75,7 @@ def train_model(features, labels, model_file='model1.pkl'):
     joblib.dump(model, model_file)
 
 # 実行部分
-video_name = "11.mp4"
+video_name = "12.mp4"
 label_file = 'labels.json'
 labels = load_labels(label_file)
 json_dir = 'output/json'

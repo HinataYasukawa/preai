@@ -36,6 +36,7 @@ def load_data_and_labels(audio_folder, labels, filename):
         if filename.endswith('.wav'):
             file_path = os.path.join(audio_folder, filename)
             video_name = os.path.splitext(filename)[0] + ".mp4"
+            print(video_name)
             label = labels.get(video_name)
             if label is not None:
                 silence_ratio, pitch_deviation = extract_features(file_path)
