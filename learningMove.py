@@ -48,16 +48,21 @@ def load_and_process_data(json_dir, labels, video_name):
                 x = keypoints[index * 3]
                 y = keypoints[index * 3 + 1]
                 confidence = keypoints[index * 3 + 2]
-                current_keypoints.extend([x, y, confidence])
+                key = (x+y)*confidence
+                current_keypoints.extend([key])
+                print(current_keypoints)
 
             if previous_keypoints is not None:
-                delta_keypoints = np.array(current_keypoints) - np.array(previous_keypoints)
-                features.append(delta_keypoints)
-                label_data.append(labels[video_name])
+                n = [current - previous for current, previous in zip(current_keypoints, previous_keypoints)]
+                if any(abs(diff) >= 300 for diff in n):
+                    delta_keypoints = np.array(current_keypoints) - np.array(previous_keypoints)
+                    features.append(delta_keypoints)
+                    label_data.append(labels[video_name])
 
             previous_keypoints = current_keypoints
 
     print(f"Loaded {len(features)} feature sets.")
+    print(np.array(features),np.array(label_data))
     return np.array(features), np.array(label_data)
 
 def train_model(features, labels, model_file='model1.pkl'):
@@ -69,7 +74,6 @@ def train_model(features, labels, model_file='model1.pkl'):
     X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
     model.fit(X_train, y_train)
     predictions = model.predict(X_test)
-    print(classification_report(y_test, predictions))
     joblib.dump(model, model_file)
 
 # 実行部分
