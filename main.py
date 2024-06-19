@@ -82,18 +82,19 @@ def combine_audio_chunks(audio_chunks, output_path):
         combined_audio += AudioSegment.from_wav(chunk_path)
     combined_audio.export(output_path, format="wav")
 
-    for chunk_path in audio_chunks:
-        print(chunk_path)
-        os.remove(chunk_path)
-
 #テキストをファイル形式にして保存
 def save_transcription(txt_path, text):
     os.makedirs(os.path.dirname(txt_path), exist_ok=True)
     with open(txt_path, 'w', encoding='utf-8') as file:
         file.write(text)
 
+def delete_audio_files(audio_chunks):
+    for chunk_path in audio_chunks:
+        print(chunk_path)
+        os.remove(chunk_path)
+
 def main():
-    number = "12"
+    number = "33"
     openpose_path = "bin\OpenPoseDemo.exe"
     video_path = "C:/openpose/examples/" + number + ".mp4"
 
@@ -121,7 +122,8 @@ def main():
         full_text = transcribe_audio_chunks(audio_chunks)
         save_transcription(txt_path, full_text)
 
-        print(f"Final audio and text files saved as {audio_path} and {txt_path}")
+    delete_audio_files(audio_chunks)
+    print(f"Final audio and text files saved as {audio_path} and {txt_path}")
 
 if __name__ == "__main__":
     main()

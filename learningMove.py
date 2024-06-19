@@ -75,7 +75,7 @@ def train_model(features, labels, model_file='model1.pkl'):
     joblib.dump(model, model_file)
 
 # 実行部分
-video_name = "12.mp4"
+video_name = "32.mp4"
 label_file = 'labels.json'
 labels = load_labels(label_file)
 json_dir = 'output/json'
