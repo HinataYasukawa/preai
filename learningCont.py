@@ -3,9 +3,7 @@ import os
 import json
 import joblib
 import numpy as np
-from spacy import displacy
 from janome.tokenizer import Tokenizer
-from collections import Counter
 from nltk.sentiment import SentimentIntensityAnalyzer
 from sklearn.ensemble import RandomForestClassifier
 
@@ -15,7 +13,7 @@ def count_pos(text):
     tokenizer = Tokenizer()
     tokens = tokenizer.tokenize(text)
     
-    pos_counter = [0,0]
+    pos_counter = [0,0,0,0]
 
     for token in tokens:
         pos = token.part_of_speech.split(',')[0]
@@ -23,6 +21,10 @@ def count_pos(text):
             pos_counter[0] += 1
         if(pos == "名詞"):
             pos_counter[1] += 1
+        if(pos == "フィラー"):
+            pos_counter[2] += 1
+        if(pos == "感動詞"):
+            pos_counter[3] += 1
 
     return pos_counter
 
@@ -43,7 +45,6 @@ def load_text_features(text_file):
 
     tmpf= [sentiment_score, text_length]
     score = tmpf + pos_counts
-    print(score)
 
     return score
 

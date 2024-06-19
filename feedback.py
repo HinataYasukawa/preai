@@ -2,9 +2,25 @@ import os
 import json
 import numpy as np
 import joblib
+from janome.tokenizer import Tokenizer
 from sklearn.ensemble import RandomForestClassifier
 from nltk.sentiment import SentimentIntensityAnalyzer
 import librosa
+
+def count_pos(text):
+    tokenizer = Tokenizer()
+    tokens = tokenizer.tokenize(text)
+    
+    pos_counter = [0,0]
+
+    for token in tokens:
+        pos = token.part_of_speech.split(',')[0]
+        if(pos == "フィラー"):
+            pos_counter[0] += 1
+        if(pos == "感動詞"):
+            pos_counter[1] += 1
+
+    return pos_counter
 
 # JSONディレクトリからポーズのキーポイント特徴量を読み込む
 def load_point_features(json_dir):
@@ -38,8 +54,6 @@ def load_point_features(json_dir):
                 features.append(delta_keypoints)
 
             previous_keypoints = current_keypoints
-            print("------------------------------------------------")
-            print(np.array(features, dtype=np.float32))
 
     return np.array(features, dtype=np.float32)
 
@@ -70,9 +84,16 @@ def load_text_features(text_file):
 
     sia = SentimentIntensityAnalyzer()
     sentiment_score = sia.polarity_scores(text)['compound']
+    print(sentiment_score)
     text_length = len(text.split())
 
-    return np.array([sentiment_score, text_length], dtype=np.float32)
+    pos_counts = count_pos(text)
+
+    tmpf= [sentiment_score, text_length]
+    score = tmpf + pos_counts
+    print(score)
+
+    return np.array(score, dtype=np.float32)
 
 # ラベルを数値に変換
 def convert_label_to_score(label):
@@ -103,6 +124,7 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     new_point_features = load_point_features(json_dir)
     new_voice_features = load_voice_features(audio_path)
     new_text_features = load_text_features(txt_path)
+    print(new_text_features)
 
     #スコア計算---------------------------------------------------------------------------------------
     # モデルのロードと予測
@@ -111,8 +133,11 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     text_model = joblib.load(model_paths['text'])
 
     new_point_predictions = point_model.predict(new_point_features)
-    new_voice_prediction = voice_model.predict([new_voice_features])[0]
-    new_text_prediction = text_model.predict([new_text_features])[0]
+    new_voice_prediction = voice_model.predict([new_voice_features])
+    new_text_prediction = text_model.predict([new_text_features])
+    print(new_point_predictions)
+    print(new_voice_prediction)
+    print(new_text_prediction)
 
     # 予測結果のスコア変換
     new_point_score = np.mean([convert_label_to_score(pred) for pred in new_point_predictions])
@@ -178,7 +203,7 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     return feedback
 
 if __name__ == "__main__":
-    video_name = '20.mp4'
+    video_name = '22.mp4'
     model_paths = {
         'pose': 'model1.pkl',
         'audio': 'model2.pkl',
