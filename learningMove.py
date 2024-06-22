@@ -28,7 +28,6 @@ def load_and_process_data(json_dir, labels, video_name):
             print(f"Skipped non-JSON file: {filename}")
             continue
 
-        print(f"Processing file: {filename}")
         if video_name not in labels:
             print(f"No label for video: {video_name}")
             continue
@@ -75,7 +74,7 @@ def train_model(features, labels, model_file='model1.pkl'):
     joblib.dump(model, model_file)
 
 # 実行部分
-video_name = "32.mp4"
+video_name = "62.mp4"
 label_file = 'labels.json'
 labels = load_labels(label_file)
 json_dir = 'output/json'
