@@ -132,6 +132,7 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     voice_model = joblib.load(model_paths['audio'])
     text_model = joblib.load(model_paths['text'])
 
+    print(new_point_features)
     new_point_predictions = point_model.predict(new_point_features)
     new_voice_prediction = voice_model.predict([new_voice_features])
     new_text_prediction = text_model.predict([new_text_features])
@@ -203,7 +204,7 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     return feedback
 
 if __name__ == "__main__":
-    video_name = '22.mp4'
+    video_name = '001.mp4'
     model_paths = {
         'pose': 'model1.pkl',
         'audio': 'model2.pkl',
