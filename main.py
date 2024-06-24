@@ -94,7 +94,7 @@ def delete_audio_files(audio_chunks):
         os.remove(chunk_path)
 
 def main():
-    number = "11"
+    number = "12"
     openpose_path = "bin\OpenPoseDemo.exe"
     video_path = "C:/openpose/examples/" + number + ".mp4"
 
@@ -118,11 +118,11 @@ def main():
         audio_chunks = split_audio(audio_path, audio_dir, number)
         combine_audio_chunks(audio_chunks, audio_path)
 
-    if not os.path.exists(txt_path):
-        full_text = transcribe_audio_chunks(audio_chunks)
-        save_transcription(txt_path, full_text)
+        if not os.path.exists(txt_path):
+            full_text = transcribe_audio_chunks(audio_chunks)
+            save_transcription(txt_path, full_text)
 
-    delete_audio_files(audio_chunks)
+        delete_audio_files(audio_chunks)
     print(f"Final audio and text files saved as {audio_path} and {txt_path}")
 
 if __name__ == "__main__":

@@ -9,5 +9,8 @@
 /models
 /output
 /python
+model1.pkl
+model2.pkl
+model3.pkl
 /Version.txt
 /__pycache__
