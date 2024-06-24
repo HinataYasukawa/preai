@@ -3,8 +3,6 @@ import json
 import os
 import joblib
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
 
 def load_labels(label_file):
     with open(label_file, 'r') as file:
@@ -14,6 +12,8 @@ def load_and_process_data(json_dir, labels, video_name):
     features = []
     label_data = []
     previous_keypoints = None
+    deltaf = []
+    n = 0
 
     full_json_dir = os.path.join(os.getcwd(), json_dir)
     print(f"Looking for JSON files in: {full_json_dir}")
@@ -47,34 +47,39 @@ def load_and_process_data(json_dir, labels, video_name):
                 x = keypoints[index * 3]
                 y = keypoints[index * 3 + 1]
                 confidence = keypoints[index * 3 + 2]
-                key = (x+y)*confidence
-                current_keypoints.extend([key])
+                key = (x + y) * confidence
+                current_keypoints.append(key)
 
             if previous_keypoints is not None:
-                n = [current - previous for current, previous in zip(current_keypoints, previous_keypoints)]
-                if any(abs(diff) >= 300 for diff in n):
+                diffs = [current - previous for current, previous in zip(current_keypoints, previous_keypoints)]
+                if any(abs(diff) >= 300 for diff in diffs):
                     delta_keypoints = np.array(current_keypoints) - np.array(previous_keypoints)
-                    features.append(delta_keypoints)
-                    label_data.append(labels[video_name])
+                    deltaf.append(delta_keypoints)
+                    n += 1
 
             previous_keypoints = current_keypoints
+
+    if n > 0:
+        average = np.mean(deltaf, axis=0)
+    else:
+        average = np.zeros_like(current_keypoints)
+
+    print(n)
+    print(average)
+    features.append(average)
+    label_data.append(labels[video_name])
 
     print(f"Loaded {len(features)} feature sets.")
     return np.array(features), np.array(label_data)
 
 def train_model(features, labels, model_file='model1.pkl'):
-    if os.path.exists(model_file):
-        model = joblib.load(model_file)
-    else:
-        model = RandomForestClassifier(n_estimators=100, random_state=42)
-
-    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.2, random_state=42)
-    model.fit(X_train, y_train)
-    predictions = model.predict(X_test)
+    model = RandomForestClassifier(n_estimators=100, random_state=42)
+    model.fit(features, labels)
     joblib.dump(model, model_file)
+    print(f"Model saved to {model_file}")
 
 # 実行部分
-video_name = "63.mp4"
+video_name = "30.mp4"
 label_file = 'labels.json'
 labels = load_labels(label_file)
 json_dir = 'output/json'

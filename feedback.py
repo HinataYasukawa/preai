@@ -133,7 +133,7 @@ def generate_feedback(video_name, model_paths, feature_dir, json_dir="output/jso
     text_model = joblib.load(model_paths['text'])
 
     print(new_point_features)
-    new_point_predictions = point_model.predict(new_point_features)
+    new_point_predictions = point_model.predict(new_point_features[point_model.feature_names_in_.tolist()])
     new_voice_prediction = voice_model.predict([new_voice_features])
     new_text_prediction = text_model.predict([new_text_features])
     print(new_point_predictions)

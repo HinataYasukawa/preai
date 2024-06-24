@@ -94,11 +94,11 @@ def delete_audio_files(audio_chunks):
         os.remove(chunk_path)
 
 def main():
-    number = "001"
+    number = "11"
     openpose_path = "bin\OpenPoseDemo.exe"
-    video_path = "C:/openpose/test/" + number + ".mp4"
+    video_path = "C:/openpose/examples/" + number + ".mp4"
 
-    output_dir = "output/json"
+    output_dir = "output/json/" + number
     image_dir = "output/image"
     audio_dir = "output/audio"
     txt_dir = "output/txt"
@@ -114,9 +114,9 @@ def main():
 
     extract_frames_from_video(video_path, image_dir, fps)
     generate_pose_coordinates(openpose_path, image_dir, output_dir)
-
-    audio_chunks = split_audio(audio_path, audio_dir, number)
-    combine_audio_chunks(audio_chunks, audio_path)
+    if not os.path.exists(audio_path):
+        audio_chunks = split_audio(audio_path, audio_dir, number)
+        combine_audio_chunks(audio_chunks, audio_path)
 
     if not os.path.exists(txt_path):
         full_text = transcribe_audio_chunks(audio_chunks)
