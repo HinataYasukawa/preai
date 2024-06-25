@@ -94,7 +94,7 @@ def delete_audio_files(audio_chunks):
         os.remove(chunk_path)
 
 def main():
-    number = "12"
+    number = "63"
     openpose_path = "bin\OpenPoseDemo.exe"
     video_path = "C:/openpose/examples/" + number + ".mp4"
 
@@ -106,8 +106,6 @@ def main():
     audio_path = os.path.join(audio_dir, number + ".wav")
     txt_path = os.path.join(txt_dir, number + ".txt")
 
-    extract_audio_from_video(video_path, audio_path)
-
     cap = cv2.VideoCapture(video_path)
     fps = cap.get(cv2.CAP_PROP_FPS)
     cap.release()
@@ -115,6 +113,7 @@ def main():
     extract_frames_from_video(video_path, image_dir, fps)
     generate_pose_coordinates(openpose_path, image_dir, output_dir)
     if not os.path.exists(audio_path):
+        extract_audio_from_video(video_path, audio_path)
         audio_chunks = split_audio(audio_path, audio_dir, number)
         combine_audio_chunks(audio_chunks, audio_path)
 
@@ -123,7 +122,8 @@ def main():
             save_transcription(txt_path, full_text)
 
         delete_audio_files(audio_chunks)
-    print(f"Final audio and text files saved as {audio_path} and {txt_path}")
+        print(f"Final audio and text files saved as {audio_path} and {txt_path}")
+    print(f"processed {video_path}")
 
 if __name__ == "__main__":
     main()

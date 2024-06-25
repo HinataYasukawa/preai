@@ -9,6 +9,7 @@ def load_labels(label_file):
         return json.load(file)
 
 def load_and_process_data(json_dir, labels, video_name):
+    video_name = video_name+".mp4"
     features = []
     label_data = []
     previous_keypoints = None
@@ -59,10 +60,7 @@ def load_and_process_data(json_dir, labels, video_name):
 
             previous_keypoints = current_keypoints
 
-    if n > 0:
-        average = np.mean(deltaf, axis=0)
-    else:
-        average = np.zeros_like(current_keypoints)
+    average = np.mean(deltaf, axis=0)
 
     print(n)
     print(average)
@@ -79,9 +77,9 @@ def train_model(features, labels, model_file='model1.pkl'):
     print(f"Model saved to {model_file}")
 
 # 実行部分
-video_name = "30.mp4"
+video_name = "11"
 label_file = 'labels.json'
 labels = load_labels(label_file)
-json_dir = 'output/json'
+json_dir = 'output/json/'+ video_name + '/'
 features, label_data = load_and_process_data(json_dir, labels, video_name)
 train_model(features, label_data)
