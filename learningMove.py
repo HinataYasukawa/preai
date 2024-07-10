@@ -9,7 +9,7 @@ def load_labels(label_file):
         return json.load(file)
 
 def load_and_process_data(json_dir, labels, video_name):
-    video_name = video_name+".mp4"
+    video_name_str = str(video_name) + ".mp4"
     features = []
     label_data = []
     previous_keypoints = None
@@ -29,8 +29,8 @@ def load_and_process_data(json_dir, labels, video_name):
             print(f"Skipped non-JSON file: {filename}")
             continue
 
-        if video_name not in labels:
-            print(f"No label for video: {video_name}")
+        if video_name_str not in labels:
+            print(f"No label for video: {video_name_str}")
             continue
 
         with open(file_path, 'r') as f:
@@ -65,7 +65,7 @@ def load_and_process_data(json_dir, labels, video_name):
     print(n)
     print(average)
     features.append(average)
-    label_data.append(labels[video_name])
+    label_data.append(labels[video_name_str])
 
     print(f"Loaded {len(features)} feature sets.")
     return np.array(features), np.array(label_data)
@@ -77,9 +77,12 @@ def train_model(features, labels, model_file='model1.pkl'):
     print(f"Model saved to {model_file}")
 
 # 実行部分
-video_name = "11"
-label_file = 'labels.json'
-labels = load_labels(label_file)
-json_dir = 'output/json/'+ video_name + '/'
-features, label_data = load_and_process_data(json_dir, labels, video_name)
-train_model(features, label_data)
+for video_name in range(11, 64):
+    label_file = 'labels.json'
+    labels = load_labels(label_file)
+    json_dir = 'output/json/' + str(video_name) + '/'
+    features, label_data = load_and_process_data(json_dir, labels, video_name)
+    if len(features) > 0 and len(label_data) > 0:
+        train_model(features, label_data)
+    else:
+        print(f"Skipping training for video {video_name} due to lack of data.")

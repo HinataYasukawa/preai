@@ -94,14 +94,14 @@ def delete_audio_files(audio_chunks):
         os.remove(chunk_path)
 
 def main():
-    number = "63"
+    number = "004"
     openpose_path = "bin\OpenPoseDemo.exe"
-    video_path = "C:/openpose/examples/" + number + ".mp4"
+    video_path = "C:/openpose/test/" + number + ".mp4"
 
-    output_dir = "output/json/" + number
+    output_dir = "test/json/" + number
     image_dir = "output/image"
-    audio_dir = "output/audio"
-    txt_dir = "output/txt"
+    audio_dir = "test/audio"
+    txt_dir = "test/txt"
 
     audio_path = os.path.join(audio_dir, number + ".wav")
     txt_path = os.path.join(txt_dir, number + ".txt")
