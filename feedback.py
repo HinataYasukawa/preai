@@ -195,7 +195,7 @@ def generate_feedback(name, model_paths, feature_dir):
     return feedback
 
 if __name__ == "__main__":
-    name = '009'
+    name = '001'
     model_paths = {
         'pose': 'model1.pkl',
         'audio': 'model2.pkl',
